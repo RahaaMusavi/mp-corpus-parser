@@ -4,7 +4,7 @@ A Python toolkit for converting and parsing Middle Persian corpus from Export fi
 
 A Python toolkit for converting and parsing a specific Pahlavi language corpus from source CSV/TSV files into a memory-loaded, object-oriented format suitable for linguistic analysis.
 
-This project was developed to standardize a varied corpus format into a clean, searchable CoNLL-U structure.
+This project was developed to standardize a varied corpus format into a clean, searchable CoNLL-U (not completely consistent with UD yet) structure.
 
 ## Features
 
