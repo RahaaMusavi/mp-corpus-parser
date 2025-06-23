@@ -4,11 +4,11 @@ A Python toolkit for converting and parsing Middle Persian corpus from Export fi
 
 A Python toolkit for converting and parsing a specific Pahlavi language corpus from source CSV/TSV files into a memory-loaded, object-oriented format suitable for linguistic analysis.
 
-This project was developed to standardize a varied corpus format into a clean, searchable CoNLL-U (not completely consistent with UD yet) structure.
+This project was developed to unify a varied corpus format into a clean, searchable CoNLL-U (not completely consistent with UD yet) structure.
 
 ## Features
 
-* Converts source CSV and TSV files into the standard CoNLL-U format.
+* Converts source CSV and TSV files into the CoNLL-U format.
 * Handles common encoding issues and sanitizes data fields during conversion.
 * Parses the clean CoNLL-U files into a list of Python `Sentence` and `Token` objects.
 * Provides a simple, high-level function to run the entire pipeline.
