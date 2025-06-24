@@ -1,9 +1,14 @@
 # corpus_parser.py
 
 """
-A reusable Python module for converting and parsing the corpus.
+A reusable Python module for converting and parsing a Pahlavi language corpus.
 This script contains all the necessary functions to go from source CSV/TSV files
-to a list of processed Sentence objects in memory.
+to a list of processed Sentence objects in memory, with full support for all
+10 standard CoNLL-U fields.
+
+Author: [Your Name/Organization Name]
+Version: 1.1
+Last Updated: [Date]
 """
 
 import os
@@ -15,21 +20,48 @@ from conllu.parser import DEFAULT_FIELD_PARSERS
 # --- Class Definitions ---
 
 class Token:
-    """A class to hold token information, with robust cleaning."""
+    """
+    Represents a single token (word) in a sentence, corresponding to one line
+    in a CoNLL-U file. This class now holds all 10 standard CoNLL-U fields.
+    """
     def __init__(self, token_data):
+        # 1. ID: Word index, integer (starting at 1 for each new sentence).
         try:
             original_id = token_data.get('id')
             self.id = int(float(original_id)) if original_id is not None else None
         except (ValueError, TypeError):
-            self.id = token_data.get('id')
+            self.id = token_data.get('id') # Fallback for non-integer IDs (e.g., ranges)
+
+        # 2. FORM: Word form or punctuation.
+        self.form = token_data.get('form')
+
+        # 3. LEMMA: Lemma or stem of the word.
+        self.lemma = token_data.get('lemma')
+
+        # 4. UPOS: Universal Part-of-Speech tag.
+        self.upos = token_data.get('upos')
+
+        # 5. XPOS: Language-specific Part-of-Speech tag. (Can be None)
+        self.xpos = token_data.get('xpos')
+
+        # 6. FEATS: List of morphological features from the universal feature inventory.
+        self.feats = token_data.get('feats')
+
+        # 7. HEAD: Head of the current word, which is either a value of ID or zero (0).
         try:
             original_head = token_data.get('head')
             self.head = int(float(original_head)) if original_head is not None else None
         except (ValueError, TypeError):
-            self.head = token_data.get('head')
-        self.form = token_data.get('form')
-        self.lemma = token_data.get('lemma')
+            self.head = token_data.get('head') # Fallback
+
+        # 8. DEPREL: Universal dependency relation to the HEAD.
         self.deprel = token_data.get('deprel')
+
+        # 9. DEPS: Enhanced dependency graph in the form of a list of head-deprel pairs.
+        self.deps = token_data.get('deps')
+
+        # 10. MISC: Any other annotation.
+        self.misc = token_data.get('misc')
 
 class Sentence:
     """A class to hold a sentence, which is a list of Token objects."""
@@ -62,7 +94,6 @@ def _convert_csv_to_conllu(csv_file_path, output_dir):
         base_name = os.path.splitext(os.path.basename(csv_file_path))[0]
         output_file_path = os.path.join(output_dir, f"{base_name}.conllu")
         with open(output_file_path, 'w', encoding='utf-8') as f:
-            # ... (omitting the long file-writing logic for brevity, it's the same as in your notebook)
             current_sentence_tokens = []
             sentence_id_counter = 1
             for index, row in df.iterrows():
@@ -78,12 +109,18 @@ def _convert_csv_to_conllu(csv_file_path, output_dir):
                         sentence_id_counter += 1
                         current_sentence_tokens = []
                 else:
+                    # Maps your source CSV columns to the 10 standard CoNLL-U columns
                     conllu_token = [
-                        _sanitize_field(row.get('id', '_')), _sanitize_field(row.get('transcription', '_')),
-                        _sanitize_field(row.get('lemma', '_')), _sanitize_field(row.get('postag', '_')),
-                        "_", _sanitize_field(row.get('postfeatures', '_')),
-                        _sanitize_field(row.get('head', '_')), _sanitize_field(row.get('deprel', '_')),
-                        _sanitize_field(row.get('deps', '_')), _sanitize_field(row.get('meaning', '_'))
+                        _sanitize_field(row.get('id', '_')),           # 1. ID
+                        _sanitize_field(row.get('transcription', '_')),# 2. FORM
+                        _sanitize_field(row.get('lemma', '_')),        # 3. LEMMA
+                        _sanitize_field(row.get('postag', '_')),       # 4. UPOS
+                        "_",                                           # 5. XPOS (Placeholder)
+                        _sanitize_field(row.get('postfeatures', '_')), # 6. FEATS
+                        _sanitize_field(row.get('head', '_')),         # 7. HEAD
+                        _sanitize_field(row.get('deprel', '_')),       # 8. DEPREL
+                        _sanitize_field(row.get('deps', '_')),         # 9. DEPS
+                        _sanitize_field(row.get('meaning', '_'))       # 10. MISC
                     ]
                     current_sentence_tokens.append(conllu_token)
             if current_sentence_tokens:
